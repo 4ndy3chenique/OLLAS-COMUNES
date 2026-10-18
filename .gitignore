@@ -5,6 +5,8 @@ build/
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 *.log
 
 # Reglas heredadas de client/.gitignore

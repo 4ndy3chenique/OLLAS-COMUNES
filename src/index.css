@@ -6,6 +6,16 @@
 @layer base {
   html {
     font-family: theme(fontFamily.sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  button,
+  a {
+    touch-action: manipulation; /* elimina el retardo de 300 ms al tocar */
   }
   body {
     @apply bg-bg text-ink;
@@ -13,6 +23,15 @@
   :focus-visible {
     outline: 3px solid #356480;
     outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .toque {
+    @apply min-h-11 min-w-11; /* área táctil mínima 44×44 */
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

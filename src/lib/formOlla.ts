@@ -1,4 +1,5 @@
 import type { DatosOllaInput, OllaComun } from "../types";
+import type { FormOlla } from "./schemas";
 
 export const DISTRITOS = [
   "San Juan de Lurigancho",
@@ -9,9 +10,6 @@ export const DISTRITOS = [
   "Villa María del Triunfo",
   "Independencia",
 ];
-
-/** Estado del formulario: la cantidad se edita como texto para permitir borrar el campo. */
-export type FormOlla = Omit<DatosOllaInput, "num_personas_declaradas"> & { num_personas_declaradas: string };
 
 export const FORM_OLLA_VACIO: FormOlla = {
   nombre: "",
@@ -34,14 +32,7 @@ export function formOllaDesdeOlla(olla: OllaComun): FormOlla {
   };
 }
 
-/** Convierte y valida en cliente; devuelve el mensaje de error o los datos listos para enviar. */
-export function validarFormOlla(form: FormOlla): { error: string } | { datos: DatosOllaInput } {
-  const num = Number(form.num_personas_declaradas);
-  if (!Number.isInteger(num) || num <= 0) {
-    return { error: "La cantidad de personas debe ser un número entero mayor que 0." };
-  }
-  if (!form.fecha_fundacion) return { error: "Indica la fecha de creación de la olla." };
-  if (form.fecha_fundacion > hoyISO()) return { error: "La fecha de creación no puede ser futura." };
-  if (!form.distrito.trim()) return { error: "Indica el distrito." };
-  return { datos: { ...form, num_personas_declaradas: num } };
+/** Valores ya validados por Zod → cuerpo que espera la API (POST/PUT de la olla). */
+export function datosParaApi(valores: FormOlla): DatosOllaInput {
+  return { ...valores, num_personas_declaradas: Number(valores.num_personas_declaradas) };
 }

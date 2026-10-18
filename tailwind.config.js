@@ -15,8 +15,13 @@ export default {
           light: "#EAF2EF",
         },
         accent: {
-          DEFAULT: "#B5651D",
+          DEFAULT: "#B5651D", // gráficos, iconos grandes, bordes (no texto menor a 18.66 px)
+          dark: "#7A4310", // texto y badges sobre fondos claros (≈6.7:1, WCAG AA)
           light: "#F7EADC",
+        },
+        success: {
+          DEFAULT: "#2F6B4F",
+          light: "#E6F2EA",
         },
         danger: {
           DEFAULT: "#A23B2E",

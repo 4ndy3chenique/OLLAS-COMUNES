@@ -10,7 +10,7 @@ import type {
 interface AuthContextValue {
   usuario: Usuario | null;
   cargando: boolean;
-  login: (input: LoginInput) => Promise<void>;
+  login: (input: LoginInput, recordarme?: boolean) => Promise<void>;
   registrar: (input: RegistroDirigenteInput) => Promise<void>;
   /** Vuelve a leer la cuenta desde el backend (p. ej. tras registrar la olla). */
   refrescarUsuario: () => Promise<void>;
@@ -24,20 +24,27 @@ const KEY_USUARIO = "sesion_usuario";
 const KEY_ACCESS = "access_token";
 const KEY_REFRESH = "refresh_token";
 
-function guardarSesion(sesion: SesionAutenticada) {
-  localStorage.setItem(KEY_USUARIO, JSON.stringify(sesion.usuario));
-  localStorage.setItem(KEY_ACCESS, sesion.access_token);
-  localStorage.setItem(KEY_REFRESH, sesion.refresh_token);
+function almacenes(recordar: boolean): [Storage, Storage] {
+  return recordar ? [localStorage, sessionStorage] : [sessionStorage, localStorage];
+}
+
+/** "Recordarme" → localStorage; si no, sessionStorage. El otro almacén se limpia para no dejar sesiones duplicadas. */
+function guardarSesion(sesion: SesionAutenticada, recordar: boolean) {
+  const [destino, otro] = almacenes(recordar);
+  for (const k of [KEY_USUARIO, KEY_ACCESS, KEY_REFRESH]) otro.removeItem(k);
+  destino.setItem(KEY_USUARIO, JSON.stringify(sesion.usuario));
+  destino.setItem(KEY_ACCESS, sesion.access_token);
+  destino.setItem(KEY_REFRESH, sesion.refresh_token);
 }
 
 function limpiarSesion() {
-  localStorage.removeItem(KEY_USUARIO);
-  localStorage.removeItem(KEY_ACCESS);
-  localStorage.removeItem(KEY_REFRESH);
+  for (const almacen of [localStorage, sessionStorage]) {
+    for (const k of [KEY_USUARIO, KEY_ACCESS, KEY_REFRESH]) almacen.removeItem(k);
+  }
 }
 
 function leerUsuarioGuardado(): Usuario | null {
-  const guardado = localStorage.getItem(KEY_USUARIO);
+  const guardado = localStorage.getItem(KEY_USUARIO) ?? sessionStorage.getItem(KEY_USUARIO);
   if (!guardado) return null;
   try {
     return JSON.parse(guardado) as Usuario;
@@ -52,7 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const cargando = false;
 
   const actualizarUsuario = useCallback((u: Usuario) => {
-    localStorage.setItem(KEY_USUARIO, JSON.stringify(u));
+    const almacen = localStorage.getItem(KEY_ACCESS) ? localStorage : sessionStorage;
+    almacen.setItem(KEY_USUARIO, JSON.stringify(u));
     setUsuario(u);
   }, []);
 
@@ -67,15 +75,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("sesion-expirada", logout);
   }, [logout]);
 
-  async function login(input: LoginInput) {
+  async function login(input: LoginInput, recordarme = true) {
     const sesion = await api.post<SesionAutenticada>("/auth/login", input);
-    guardarSesion(sesion);
+    guardarSesion(sesion, recordarme);
     setUsuario(sesion.usuario);
   }
 
   async function registrar(input: RegistroDirigenteInput) {
     const sesion = await api.post<SesionAutenticada>("/auth/registro-dirigente", input);
-    guardarSesion(sesion);
+    guardarSesion(sesion, true);
     setUsuario(sesion.usuario);
   }
 

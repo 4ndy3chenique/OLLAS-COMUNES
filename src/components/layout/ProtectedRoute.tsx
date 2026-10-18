@@ -1,8 +1,9 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { usuario, cargando } = useAuth();
+  const location = useLocation();
 
   if (cargando) {
     return (
@@ -12,8 +13,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Sin sesión: se abre el modal de ingreso y, tras entrar, se vuelve a la ruta que se pedía
   if (!usuario) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/?auth=login" replace state={{ desde: location.pathname }} />;
   }
 
   return <>{children}</>;

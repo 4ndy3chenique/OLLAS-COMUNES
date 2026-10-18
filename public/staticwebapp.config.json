@@ -1,6 +1,6 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/*.svg"]
+    "exclude": ["/assets/*", "/*.svg", "/sw.js", "/workbox-*.js", "/manifest.webmanifest", "/pwa-*.png", "/apple-touch-icon.png", "/robots.txt"]
   }
 }

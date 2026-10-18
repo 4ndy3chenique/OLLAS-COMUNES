@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP centralizado para consumir la API REST del backend (Node + Express).
+ * Cliente HTTP centralizado para consumir la API REST del backend (PHP, carpeta endpoints/).
  * Inyecta el access_token y expone helpers get/post/put/delete tipados.
  */
 
@@ -18,8 +18,9 @@ export class ApiError extends Error {
   }
 }
 
+/** La sesión vive en localStorage ("Recordarme") o en sessionStorage (se pierde al cerrar el navegador). */
 function getAccessToken(): string | null {
-  return localStorage.getItem("access_token");
+  return localStorage.getItem("access_token") ?? sessionStorage.getItem("access_token");
 }
 
 async function request<T>(
@@ -47,6 +48,9 @@ async function request<T>(
     try {
       const cuerpo = await response.json();
       mensaje = cuerpo.mensaje ?? cuerpo.message ?? mensaje;
+      // 422: la API detalla el problema por campo en `errores`; se muestra si aporta más que el mensaje general
+      const detalles = cuerpo.errores ? Object.values<string>(cuerpo.errores) : [];
+      if (detalles.length > 0 && !detalles.includes(mensaje)) mensaje = `${mensaje} ${detalles.join(" ")}`;
     } catch {
       /* respuesta sin cuerpo JSON */
     }
