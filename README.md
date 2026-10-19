@@ -61,7 +61,7 @@ Cada commit incorporado a la rama `main` ejecuta un flujo de trabajo automatizad
 
 Configuración requerida en GitHub (Settings → Secrets and variables → Actions):
 
-* **Secret** `AZURE_STATIC_WEB_APPS_API_TOKEN`: token de despliegue del recurso `stapp-ollas-web-prod`.
+* **Secret** `AZURE_STATIC_WEB_APPS_API_TOKEN`: token de despliegue del recurso `ollas-comunes`.
 * **Variable** `VITE_API_BASE_URL`: URL pública de la API terminada en `/api`. El workflow falla si no existe.
 
 Más detalle de rutas, PWA y endpoints en [PLATAFORMA_SOLICITANTE_README.md](PLATAFORMA_SOLICITANTE_README.md).
