@@ -28,6 +28,10 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # Puerta de calidad: si alguna prueba falla, el pipeline se detiene aquí y no despliega
+      - name: Pruebas unitarias
+        run: npm run test:run
+
       - name: Verificar URL de la API
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
